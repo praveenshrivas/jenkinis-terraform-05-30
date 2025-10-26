@@ -26,5 +26,13 @@ pipeline {
                 sh 'terraform apply -auto-approve'
             }
         }
+        stage('Create Artifact') {
+            steps {
+                echo 'Zipping main.tf as artifact...'
+                sh ''' zip main-tf-artifact.zip main.tf '''
+        archiveArtifacts artifacts: 'main-tf-artifact.zip', fingerprint: true
+    }
+}
+
     }
 }
