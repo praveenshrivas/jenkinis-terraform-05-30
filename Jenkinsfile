@@ -7,6 +7,7 @@ pipeline {
                 sh '''
                 terraform init
                 terraform apply -auto-approve
+                terraform refresh
                 terraform output -raw ec2_public_ip > ec2_ip.txt
                 cat ec2_ip.txt
                 '''
