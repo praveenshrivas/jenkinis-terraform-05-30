@@ -20,4 +20,13 @@ pipeline {
             }
         }
     }
+    post {
+        success {
+            echo "✅ Terraform completed successfully — triggering Ansible pipeline..."
+            build job: 'Ansible-demo'   // <-- change to exact name of your Ansible pipeline
+        }
+        failure {
+            echo "❌ Terraform failed — not triggering Ansible pipeline."
+        }
+    }
 }
