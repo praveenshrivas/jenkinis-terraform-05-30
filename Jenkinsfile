@@ -1,32 +1,30 @@
 pipeline {
     agent any
 
+    environment {
+        AWS_DEFAULT_REGION = 'ap-south-1'
+    }
+
     stages {
-        stage('Terraform Init & Apply') {
+        stage('Terraform Init') {
             steps {
-                sh '''
-                terraform init
-                terraform apply -auto-approve
-                terraform refresh
-                terraform output -raw ec2_public_ip > ec2_ip.txt
-                cat ec2_ip.txt
-                '''
+                echo "Initializing Terraform..."
+                sh 'terraform init'
             }
         }
 
-        stage('Archive EC2 IP Artifact') {
+        stage('Terraform Plan') {
             steps {
-                archiveArtifacts artifacts: 'ec2_ip.txt', fingerprint: true
+                echo "Planning Terraform changes..."
+                sh 'terraform plan -out=tfplan | tee tf-plan.log'
             }
         }
-    }
-    post {
-        success {
-            echo "✅ Terraform completed successfully — triggering Ansible pipeline..."
-            build job: 'Ansible-demo', propagate: false // <-- change to exact name of your Ansible pipeline
-        }
-        failure {
-            echo "❌ Terraform failed — not triggering Ansible pipeline."
+
+        stage('Terraform Apply') {
+            steps {
+                echo "Applying Terraform plan to create resources..."
+                sh 'terraform apply -auto-approve | tee tf-output.log'
+            }
         }
     }
 }
