@@ -23,4 +23,13 @@ pipeline {
             }
         }
     }
+    post{
+        success{
+            echo "Terraform Completed Successfully-Trigerring Ansible Pipeline"
+            build job: 'Ansible-demo', propogate: false
+        }
+        failure{
+            echo "Terraform Build failed."
+        }
+    }
 }
