@@ -6,24 +6,20 @@ pipeline {
     }
 
     stages {
-        stage('Terraform Init') {
+        stage('Terraform Init and Apply') {
             steps {
                 echo "Initializing Terraform..."
-                sh 'terraform init'
+                sh '''
+                terraform init
+                terraform apply -auto-approve
+                terraform output -raw ec2_public_ip > ec2_ip.txt
+                cat ec2_ip.txt
+                '''
             }
         }
-
-        stage('Terraform Plan') {
-            steps {
-                echo "Planning Terraform changes..."
-                sh 'terraform plan -out=tfplan | tee tf-plan.log'
-            }
-        }
-
-        stage('Terraform Apply') {
-            steps {
-                echo "Applying Terraform plan to create resources..."
-                sh 'terraform apply -auto-approve | tee tf-output.log'
+        stage('Archive the Artifacts'){
+            steps{
+                archiveArtifacts artifacts:'ec2_ip.txt', fingerprint: true
             }
         }
     }
