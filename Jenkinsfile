@@ -26,7 +26,7 @@ pipeline {
     post{
         success{
             echo "Terraform Completed Successfully-Trigerring Ansible Pipeline"
-            build job: 'Ansible-demo', propogate: false
+            build job: 'Ansible-demo', propagate: false
         }
         failure{
             echo "Terraform Build failed."
